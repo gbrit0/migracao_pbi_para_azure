@@ -1,0 +1,33 @@
+{
+   "Parâmetros para extração": {
+      "DataFactory": "pbi0503",
+      "Descrição": "Parâmetros para a extração de dados das tabelas usadas no relatório de Indicadores da Assistência Técnica"
+   },
+   "Tabelas": { // TROCAR PARA TABELAS PRESENTES NO BI
+      "APLIC_in": {
+         "Consulta_SQL": "SELECT * FROM sua_tabela_APLIC",
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/APLIC_in",
+            "NomeArquivo": "APLIC_in"
+         }
+      },
+      "CAUSA_in": {
+         "Consulta_SQL": "SELECT * FROM sua_tabela_CAUSA",
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/CAUSA_in",
+            "NomeArquivo": "CAUSA_in"
+         }
+      },
+      "CENCUS_in": {
+         "Consulta_SQL": "SELECT * FROM sua_tabela_CAUSA",
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/CAUSA_in",
+            "NomeArquivo": "CAUSA_in"
+         }
+      },
+
+   }
+}
