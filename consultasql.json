@@ -3,31 +3,745 @@
       "DataFactory": "pbi0503",
       "Descrição": "Parâmetros para a extração de dados das tabelas usadas no relatório de Indicadores da Assistência Técnica"
    },
-   "Tabelas": { // TROCAR PARA TABELAS PRESENTES NO BI
-      "APLIC_in": {
-         "Consulta_SQL": "SELECT * FROM sua_tabela_APLIC",
+   "Tabelas": { 
+      "f_Causas": {
          "Destino": {
             "Conteiner": "pbi",
-            "Diretório": "raw/APLIC_in",
-            "NomeArquivo": "APLIC_in"
-         }
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "f_Causas"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "REGSERV",
+                        "type": "DatasetReference"
+                    },
+                    {
+                        "referenceName": "CAUSA",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "f_Causas",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT REGSERV.CODORD, MAX(CAUSA.DESCRICAO) AS CAUSA FROM REGSERV LEFT JOIN CAUSA ON REGSERV.CODCAU = CAUSA.CODCAU WHERE REGSERV.CODCAU IS NOT NULL AND REGSERV.CODCAU != 14 GROUP BY CODORD ORDER BY CODORD;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
       },
-      "CAUSA_in": {
-         "Consulta_SQL": "SELECT * FROM sua_tabela_CAUSA",
+      "f_Defeitos": {
          "Destino": {
             "Conteiner": "pbi",
-            "Diretório": "raw/CAUSA_in",
-            "NomeArquivo": "CAUSA_in"
-         }
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "f_Defeitos"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "REGSERV",
+                        "type": "DatasetReference"
+                    },
+                    {
+                        "referenceName": "DEFEITO",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "f_Defeitos",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT REGSERV.CODORD, MAX(DEFEITO.DESCRICAO) AS DEFEITO FROM REGSERV LEFT JOIN DEFEITO ON REGSERV.CODDEF = DEFEITO.CODDEF WHERE REGSERV.CODDEF IS NOT NULL GROUP BY CODORD ORDER BY CODORD;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
       },
-      "CENCUS_in": {
-         "Consulta_SQL": "SELECT * FROM sua_tabela_CAUSA",
+      "f_Estoque": {
          "Destino": {
             "Conteiner": "pbi",
-            "Diretório": "raw/CAUSA_in",
-            "NomeArquivo": "CAUSA_in"
-         }
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "f_Estoque"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "ESTOQUE",
+                        "type": "DatasetReference"
+                    }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "f_Estoque",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select CODESTOQUE,CODMAT,ESTMIN,ESTMAX,SALDO,DATALT from ESTOQUE ORDER BY CODMAT, DATALT;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
       },
+      "f_Materiais": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "f_Materiais"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "REGSERV",
+                        "type": "DatasetReference"
+                    },
+                    {
+                     "referenceName": "REGSERVXMAT",
+                     "type": "DatasetReference"
+                 }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "f_Materiais",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT * FROM (SELECT CODORD, CODMAT,QTDEREA FROM REGSERV UNION SELECT CODORD, CODMAT,QTDEREA FROM REGSERVXMAT) AS SEL WHERE CODMAT IS NOT NULL AND QTDEREA IS NOT NULL AND QTDEREA != 0 ORDER BY QTDEREA;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
 
+      },
+      "f_OSs": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "f_OSs"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "ORDSERV",
+                        "type": "DatasetReference"
+                    },
+                    {
+                     "referenceName": "ORDXFUN",
+                     "type": "DatasetReference"
+                 }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "f_OSs",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODORD, DATHORINI, DATHORFIM, CODCLI, CODAPL, CODTIPMAN, CODSET, CODCEN, CODFUN_RESP, CODFUN, STATORD, TEMPO_DECORRIDO, ROW_NUMBER() OVER (PARTITION BY CODCLI, CONVERT(date, DATHORINI) ORDER BY DATHORINI) AS rnCODCLI, ROW_NUMBER() OVER (PARTITION BY CODAPL, CONVERT(date, DATHORINI) ORDER BY DATHORINI) AS rnCODAPL FROM ( SELECT ORDSERV.CODORD, ORDXFUN.DATHORINI, ORDXFUN.DATHORFIM, ORDSERV.CODCLI, ORDSERV.CODAPL, ORDSERV.CODTIPMAN, ORDSERV.CODSET, ORDSERV.CODCEN, ORDSERV.CODFUN_RESP, ORDSERV.CODFUN, ORDSERV.STATORD, ORDSERV.HOREXEREA AS TEMPO_DECORRIDO, ROW_NUMBER() OVER (PARTITION BY ORDSERV.CODORD ORDER BY ORDXFUN.DATHORFIM ASC) AS rn FROM ORDSERV LEFT JOIN ORDXFUN ON ORDXFUN.CODORD = ORDSERV.CODORD WHERE ORDSERV.CODCLI != 0 AND ORDSERV.CODAPL != 0 AND ORDXFUN.DATHORINI != '' AND ORDSERV.STATORD != 'C' AND ORDSERV.CODFUN_RESP != 0 AND ORDSERV.CODFUN != 0 ) AS subquery WHERE rn = 1;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_SetExe": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_SetExe"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "SETEXE",
+                        "type": "DatasetReference"
+                    }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_SetExe",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODSET, DESCRICAO FROM SETEXE;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Func": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Func"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "FUNC",
+                        "type": "DatasetReference"
+                    }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Func",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODFUN, NOME FROM FUNC order by CODFUN;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Aplic": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Aplic"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "ESPECIFICACAO",
+                        "type": "DatasetReference"
+                    },
+                    {
+                        "referenceName": "APLIC",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Aplic",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select CODAPL, CODLOCAPL, APLIC.DESCRICAO, MODELO, ESPECIFICACAO.DESCRICAO AS ESPECIFICACAO, APLIC.TAG,APLIC.TAGGRU from APLIC LEFT JOIN ESPECIFICACAO ON APLIC.CODESP = ESPECIFICACAO.CODESP;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_CenCus": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_CenCus"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "CENCUS",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_CenCus",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select CODCEN, DESCRICAO from CENCUS;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Cliente": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Cliente"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "d_Cliente",
+                        "type": "DatasetReference"
+                    }  
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Cliente_in",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select * from d_Cliente;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Criticidade": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Criticidade"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "f_confiabilidade",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Criticidade",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select * from f_confiabilidade"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Causa": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Causa"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "CAUSA",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Causa",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select CODCAU, DESCRICAO AS CAUSA from CAUSA;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Defeito": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Defeito"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "DEFEITO",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Defeito",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "select CODDEF, DESCRICAO AS DEFEITO from DEFEITO;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Materiais": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Materiais"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "MATERIAL",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Materiais",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODMAT, CODUNI, CODCLAMAT, DESCRICAO FROM MATERIAL;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_Unidade": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_Unidade"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "UNIDADE",
+                        "type": "DatasetReference"
+                    }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_Unidade",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODUNI, DESCRICAO, TAG FROM UNIDADE;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_ClaMat": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_ClaMat"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "CLAMAT",
+                        "type": "DatasetReference"
+                    }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_ClaMat",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODCLAMAT, DESCRICAO FROM CLAMAT;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      },
+      "d_LocAplic": {
+         "Destino": {
+            "Conteiner": "pbi",
+            "Diretório": "raw/tabelas",
+            "NomeArquivo": "d_LocAplic"
+         },
+         "activities":[
+            {
+                "name": "CopyActivityTemplate",
+                "type": "Copy",
+                "inputs": [
+                    {
+                        "referenceName": "LOCAPLIC",
+                        "type": "DatasetReference"
+                    }
+                    
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "d_LocAplic",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "typeProperties": {
+                    "source": {
+                        "type": "SqlServerTable",
+                        "sqlReaderQuery": "SELECT CODLOCAPL, DESCRICAO, TAG, TAGGRU FROM LOCAPLIC;"
+                    },
+                    "sink": {
+                        "type": "AzureBlobStorage",
+                        "typeProperties": {
+                           "contaninerUri": "https://pbi0503.blob.core.windows.net/pbi"
+                        },
+                        "connectVia": {
+                           "referenceName": "integrationRuntime-dados-internos",
+                           "type": "IntegrationRuntimeReference"
+                        }
+                    }
+                }
+            }
+        ]
+
+      }
    }
 }

@@ -6,3 +6,5 @@ Incluiu-se cada tabela utilizada no Power BI em um DataFactory Azure a fim de as
 <!-- Entretanto, algumas das tabelas, tais como f_TempoEntreManutencoes e f_Ttr, partem da mesma fonte de dados. Assim, não há necessidade de duplicar as entradas criando uma tabela no ambiente interno Azure para cada tabela no Power BI. -->
 
 A aquisição de dados ocorreu por um pipeline conectando as fontes de dados originais ao DataLake implementado. Para facilitar o processo, foi criado um arquivo JSON com todas as tabelas presentes no BI, as suas consultas geradoras e seus destinos dentro do DataLake.
+
+f_MTBF, f_OSs, f_TempoEntreManutencoes e f_Ttr têm a mesma origem. Foram todas agrupadas na tabela f_OSs para não gerar redundância e posteriormente serão distribuídas para as respectivas tabelas no BI.
